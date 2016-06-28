@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 		printf("usage: myfgrep [-lh] [-m count] searchString [file ...]\n");
 	} else {	
 		// If no files, standard input
-		if (argc == optind){
+		if (argc == optind + 1){
 			while (fgets(line, 500, stdin) != NULL && 
 				(mFlag == FALSE || lines < count)){
 				processLine(line, argv[optind], "stdin");
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-	if (status != FALSE || status != TRUE)
+	if (status != FALSE && status != TRUE)
 		return status;
 	else
 		return found;
