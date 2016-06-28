@@ -60,6 +60,7 @@ int main(int argc, char **argv)
 					// Process each line
 					while (fgets(line, 500, f) != NULL && lines < count)
 						processLine(line, argv[optind], argv[i]);
+						printf("%s", line);
 					fclose(f);
 				}			
 			}
