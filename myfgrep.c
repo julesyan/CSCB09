@@ -6,7 +6,7 @@
 #define TRUE 0
 
 int lFlag = FALSE, hFlag = FALSE, mFlag = FALSE, count, lines = 0, status = 0,
-	found = FALSE, lotsOfFiles = FALSE;
+	found = FALSE, lotsOfFiles = FALSE, finishedFile = FALSE;
 
 int main(int argc, char **argv)
 {
@@ -28,6 +28,7 @@ int main(int argc, char **argv)
 			case 'm':
 				mFlag = TRUE;
 				count = atoi(optarg);
+				printf("%i", count);
 			// There was an error
 			default:
 				status = 2;
@@ -57,13 +58,15 @@ int main(int argc, char **argv)
 				} else {
 					// Open file 
 					f = fopen(argv[i], "r");
+					finishedFile = FALSE;
 					if (f == NULL){
 						perror("Error opening file");
 						status = 2;
 					}
 					// Process each line
 					while (fgets(line, 500, f) != NULL  && 
-						(mFlag == FALSE || lines < count))
+						(mFlag == FALSE || lines < count) && 
+						finishedFile == FALSE)
 						processLine(line, argv[optind], argv[i]);
 					fclose(f);
 				}			
@@ -85,6 +88,7 @@ void processLine(char *line, char *searchString, char *fileName)
 			printf("%s", line);
 		else if (lFlag == TRUE)
 			printf("%s\n", fileName);
+			finishedFile = TRUE;
 		else {
 			printf("%s: %s", fileName, line);
 		}
