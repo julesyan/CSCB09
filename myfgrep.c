@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 			// If there are no more arguments process standard input
 			for (i = optind + 1; i < argc && status != 2; i++){
 				// If standard input
-				if (strcmp(argv[i], "-")){
+				if (!(strcmp(argv[i], "-"))){
 					while (fgets(line, 500, stdin) != NULL && 
 						(mFlag == FALSE && lines < count))
 						processLine(line, argv[optind], "stdin");
