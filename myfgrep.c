@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 			// If there are no more arguments process standard input
 			for (i = optind + 2; i < argc && status != 2; i++){
 				// If standard input
-				if (argv[i] == '-'){
+				if (argv[i] == "-"){
 					while (fgets(line, 500, stdin) != NULL)
 						processLine(line, argv[optind], "stdin");
 				} else {
@@ -85,7 +85,7 @@ void processLine(char *line, char *searchString, char *fileName)
 			printf("%s", fileName);
 		else {
 			lines ++;
-			printf("%s: %s", fileName, line)
+			printf("%s: %s", fileName, line);
 		}
 	}
 }
