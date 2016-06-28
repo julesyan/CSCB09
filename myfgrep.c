@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#define TRUE 1
-#define FALSE 0
+#define FALSE 1
+#define TRUE 0
 
 int lFlag = FALSE, hFlag = FALSE, mFlag = FALSE, count, lines = 0, status = 0,
 	found = FALSE;
@@ -86,7 +86,7 @@ void processLine(char *line, char *searchString, char *fileName)
 		else if (lFlag)
 			printf("%s\n", fileName);
 		else {
-			lines ++;
+			if (mFlag) { lines ++; }
 			printf("%s: %s", fileName, line);
 		}
 	}
