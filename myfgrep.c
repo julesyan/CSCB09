@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#define int true 1
-#define int false 0
+#define TRUE 1
+#define FALSE 0
 
-int lFlag = false; hFlag = false; mFlag = false; count; lines = 0; status = 0;
+int lFlag = FALSE, hFlag = FALSE, mFlag = FALSE, count, lines = 0, status = 0;
 
 int main(int argc, char** argv)
 {
@@ -19,13 +19,13 @@ int main(int argc, char** argv)
 	while ((c = getopt(argc, argv, "hlm:")) != EOF){
 		switch (c){
 			case 'l':
-				lFlag = true;
+				lFlag = TRUE;
 				break;
 			case 'h':
-				hFlag = true;
+				hFlag = TRUE;
 				break;
 			case 'm':
-				mFlag = true;
+				mFlag = TRUE;
 				count = atoi(optarg);
 			// There was an error
 			default:
@@ -36,15 +36,36 @@ int main(int argc, char** argv)
 
 	// If there are no more arguments, usage error
 	if (status || optind == argc){
+		printf("usage: myfgrep [-lh] [-m count] argv[optind] [file ...]");
+	} else {	
+		// If no files, standard input
+		if (argc == optind + 1){
+			while (fgets(lint, 500, stdin)){
+				processLine(line, argv[optind], "stdin");
+			}
+		} else {
+			// If there are no more arguments process standard input
+			for (i = optind + 2; i < argc && status != 2; i++){
+				// If standard input
+				if (argv[i] == "-"){
+					while (fgets(line, 500, stdin))
+						processLine(line, argv[optind], "stdin");
+				} else {
+					// Open file 
+					f = fopen(argv[i], "r");
+					if (f == NULL){
+						perror("Error opening file");
+						status = 2;
+					}
+					// Process each line
+					while (fgets(line, 500, argv[i]) != NULL){
+						processLine(line, argv[optind], argv[i]);
+					}
+					fclose(f);
+				}			
+			}
+		}
 	}
-
-	// If there are files, go thru each one and set it as input
-		// Go through each line in the input
-			// Check if string is in another string
-				// Output the match string if option is enabled (h)
-				// Output the files that have match if option enabled and go to next file (l)
-				// Output only up to a certain number of lines matched (m)
-				// Otherwise output as normal
 	return (status);
 }
 
@@ -63,6 +84,7 @@ void int processLine(char *line, char *searchString, char *fileName)
 		else if (lFlag)
 			printf("%s", fileName);
 		else {
+			lines ++;
 			printf("%s: %s", fileName, line)
 		}
 	}
