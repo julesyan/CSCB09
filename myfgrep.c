@@ -6,13 +6,12 @@
 
 int lFlag = FALSE, hFlag = FALSE, mFlag = FALSE, count, lines = 0, status = 0;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	int i;
 	FILE *f;
-	char *argv[optind];
 	char[500] line;
-	extern void int processLine(char *line, char *argv[optind], char *fileName);
+	extern void int processLine(char *line, char *searchString, char *fileName);
 
 	// Go thru each option
 	char c;
@@ -40,7 +39,7 @@ int main(int argc, char** argv)
 	} else {	
 		// If no files, standard input
 		if (argc == optind + 1){
-			while (fgets(lint, 500, stdin)){
+			while (fgets(line, 500, stdin)){
 				processLine(line, argv[optind], "stdin");
 			}
 		} else {
