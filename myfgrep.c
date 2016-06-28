@@ -78,7 +78,7 @@ void processLine(char *line, char *searchString, char *fileName)
 		status = 1; 
 
 	// Output
-	if (status){
+	if (!status){
 		if (hFlag)
 			printf("%s\n", line);
 		else if (lFlag)
