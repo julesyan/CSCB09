@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 		// If no files, standard input
 		if (argc == optind + 1){
 			while (fgets(line, 500, stdin) != NULL && 
-				(mFlag == TRUE && lines < count){
+				(mFlag == TRUE && lines < count)){
 				processLine(line, argv[optind], "stdin");
 			}
 		} else {
