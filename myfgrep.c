@@ -86,9 +86,10 @@ void processLine(char *line, char *searchString, char *fileName)
 		found = TRUE;
 		if (hFlag == TRUE || lotsOfFiles == FALSE)
 			printf("%s", line);
-		else if (lFlag == TRUE)
+		else if (lFlag == TRUE){
 			printf("%s\n", fileName);
 			finishedFile = TRUE;
+		}
 		else {
 			printf("%s: %s", fileName, line);
 		}
