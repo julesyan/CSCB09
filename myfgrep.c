@@ -5,7 +5,7 @@
 #define TRUE 1
 #define FALSE 0
 
-int lFlag = FALSE, hFlag = FALSE, mFlag = FALSE, count, lines = 0, status = 0;
+int lFlag = FALSE, hFlag = FALSE, mFlag = FALSE, count, lines = 0, status = 1;
 
 int main(int argc, char **argv)
 {
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 	} else {	
 		// If no files, standard input
 		if (argc == optind + 1){
-			while (fgets(line, 500, stdin) != NULL){
+			while (fgets(line, 500, stdin) != NULL && lines < count){
 				processLine(line, argv[optind], "stdin");
 			}
 		} else {
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 			for (i = optind + 2; i < argc && status != 2; i++){
 				// If standard input
 				if (strcmp(argv[i], "-")){
-					while (fgets(line, 500, stdin) != NULL)
+					while (fgets(line, 500, stdin) != NULL && lines < count)
 						processLine(line, argv[optind], "stdin");
 				} else {
 					// Open file 
@@ -58,9 +58,8 @@ int main(int argc, char **argv)
 						status = 2;
 					}
 					// Process each line
-					while (fgets(line, 500, f) != NULL){
+					while (fgets(line, 500, f) != NULL && lines < count)
 						processLine(line, argv[optind], argv[i]);
-					}
 					fclose(f);
 				}			
 			}
@@ -72,10 +71,8 @@ int main(int argc, char **argv)
 void processLine(char *line, char *searchString, char *fileName)
 {
 	//Determine status
-	if (strstr(line, searchString))
+	if (strstr(line, searchString) && status)
 		status = 0;
-	else 
-		status = 1; 
 
 	// Output
 	if (!status){
