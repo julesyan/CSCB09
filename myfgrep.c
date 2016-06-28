@@ -82,7 +82,7 @@ void processLine(char *line, char *searchString, char *fileName)
 		if (hFlag)
 			printf("%s", line);
 		else if (lFlag)
-			printf("%s", fileName);
+			printf("%s\n", fileName);
 		else {
 			lines ++;
 			printf("%s: %s", fileName, line);
