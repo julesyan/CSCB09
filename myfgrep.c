@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 				// If standard input
 				if (!(strcmp(argv[i], "-"))){
 					while (fgets(line, 500, stdin) != NULL && 
-						(mFlag == FALSE && lines < count))
+						(mFlag == FALSE || lines < count))
 						processLine(line, argv[optind], "stdin");
 				} else {
 					// Open file 
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 					}
 					// Process each line
 					while (fgets(line, 500, f) != NULL  && 
-						(mFlag == FALSE && lines < count))
+						(mFlag == FALSE || lines < count))
 						processLine(line, argv[optind], argv[i]);
 					fclose(f);
 				}			
