@@ -30,6 +30,7 @@ int main(int argc, char **argv)
 				count = atoi(optarg);
 			// There was an error
 			default:
+				printf("%c", c);
 				status = 2;
 				break;
 		}
