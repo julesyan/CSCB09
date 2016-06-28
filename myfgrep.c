@@ -37,12 +37,12 @@ int main(int argc, char **argv)
 
 	// If there are no more arguments, usage error
 	if (status || optind == argc){
-		printf("usage: myfgrep [-lh] [-m count] searchString [file ...]");
+		printf("usage: myfgrep [-lh] [-m count] searchString [file ...]\n");
 	} else {	
 		// If no files, standard input
 		if (argc == optind + 1){
 			while (fgets(line, 500, stdin) != NULL && 
-				(mFlag == TRUE && lines < count)){
+				(mFlag == FALSE || lines < count)){
 				processLine(line, argv[optind], "stdin");
 			}
 		} else {
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 				// If standard input
 				if (strcmp(argv[i], "-")){
 					while (fgets(line, 500, stdin) != NULL && 
-						(mFlag == TRUE && lines < count))
+						(mFlag == FALSE && lines < count))
 						processLine(line, argv[optind], "stdin");
 				} else {
 					// Open file 
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 					}
 					// Process each line
 					while (fgets(line, 500, f) != NULL  && 
-						(mFlag == TRUE && lines < count))
+						(mFlag == FALSE && lines < count))
 						processLine(line, argv[optind], argv[i]);
 						printf("%s", line);
 					fclose(f);
