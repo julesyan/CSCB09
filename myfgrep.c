@@ -5,7 +5,8 @@
 #define TRUE 1
 #define FALSE 0
 
-int lFlag = FALSE, hFlag = FALSE, mFlag = FALSE, count, lines = 0, status = 1;
+int lFlag = FALSE, hFlag = FALSE, mFlag = FALSE, count, lines = 0, status = 0,
+	found = FALSE;
 
 int main(int argc, char **argv)
 {
@@ -36,7 +37,7 @@ int main(int argc, char **argv)
 
 	// If there are no more arguments, usage error
 	if (status || optind == argc){
-		printf("usage: myfgrep [-lh] [-m count] argv[optind] [file ...]");
+		printf("usage: myfgrep [-lh] [-m count] searchString [file ...]");
 	} else {	
 		// If no files, standard input
 		if (argc == optind + 1){
@@ -66,14 +67,17 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-	return (status);
+	if (status != FALSE || status != TRUE)
+		return status;
+	else
+		return found;
 }
 
 void processLine(char *line, char *searchString, char *fileName)
 {
 	//Determine status
 	if (strstr(line, searchString) && status)
-		status = 0;
+		found = TRUE;
 
 	// Output
 	if (!status){
