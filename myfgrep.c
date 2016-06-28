@@ -6,7 +6,7 @@
 #define TRUE 0
 
 int lFlag = FALSE, hFlag = FALSE, mFlag = FALSE, count, lines = 0, status = 0,
-	found = FALSE;
+	found = FALSE, lotsOfFiles = FALSE;
 
 int main(int argc, char **argv)
 {
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 				processLine(line, argv[optind], "stdin");
 			}
 		} else {
-			printf("%i", status);
+			if (argc > optind + 2) { lotsOfFiles = TRUE; }
 			// If there are no more arguments process standard input
 			for (i = optind + 1; i < argc && status != 2; i++){
 				// If standard input
@@ -65,7 +65,6 @@ int main(int argc, char **argv)
 					while (fgets(line, 500, f) != NULL  && 
 						(mFlag == FALSE && lines < count))
 						processLine(line, argv[optind], argv[i]);
-						printf("%s", line);
 					fclose(f);
 				}			
 			}
@@ -82,13 +81,13 @@ void processLine(char *line, char *searchString, char *fileName)
 	//Determine status
 	if (strstr(line, searchString)){
 		found = TRUE;
-		if (hFlag)
+		if (hFlag == TRUE || lotsOfFiles == FALSE)
 			printf("%s", line);
-		else if (lFlag)
+		else if (lFlag == TRUE)
 			printf("%s\n", fileName);
 		else {
-			if (mFlag) { lines ++; }
 			printf("%s: %s", fileName, line);
 		}
+		if (mFlag == TRUE) { lines ++; }
 	}
 }
