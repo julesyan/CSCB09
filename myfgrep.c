@@ -28,7 +28,6 @@ int main(int argc, char **argv)
 			case 'm':
 				mFlag = TRUE;
 				count = atoi(optarg);
-				printf("%i", count);
 			// There was an error
 			default:
 				status = 2;
@@ -38,6 +37,7 @@ int main(int argc, char **argv)
 
 	// If there are no more arguments, usage error
 	if (status || optind == argc){
+		printf ("%i, %i, %i", status, optind, argc);
 		printf("usage: myfgrep [-lh] [-m count] searchString [file ...]\n");
 	} else {	
 		// If no files, standard input
