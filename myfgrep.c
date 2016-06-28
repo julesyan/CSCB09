@@ -4,7 +4,10 @@
 #define true 1
 #define false 0
 
-int lFlag = false; hFlag = false; mFlag = false; count;
+int lFlag = false; 
+int hFlag = false; 
+int mFlag = false; 
+int count;
 
 int main(int argc, char** argv)
 {
@@ -16,7 +19,7 @@ int main(int argc, char** argv)
 	char c;
 	int status = 0;
 	while ((c = getopt(argc, argv, "hlm:")) != EOF){
-		switch (s){
+		switch (c){
 			case 'l':
 				lFlag = true;
 				break;
@@ -24,7 +27,7 @@ int main(int argc, char** argv)
 				hFlag = true;
 				break;
 			case 'm':
-				mFalse = true;
+				mFlag = true;
 				count = atoi(optarg);
 			// There was an error
 			default:
@@ -35,7 +38,7 @@ int main(int argc, char** argv)
 
 	// If there are no more arguments, usage error
 	if (status || optind == argc){
-		prinf("usage: myfgrep [-lh] [-m count] searchString [file ...]")
+		prinf("usage: myfgrep [-lh] [-m count] searchString [file ...]");
 	} else if (optind + 1 != argc){
 		// If there is more then one argument, there are files
 		stdin = false;
@@ -48,4 +51,5 @@ int main(int argc, char** argv)
 				// Output the files that have match if option enabled and go to next file (l)
 				// Output only up to a certain number of lines matched (m)
 				// Otherwise output as normal
+	return (status);
 }
