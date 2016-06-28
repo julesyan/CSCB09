@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #define TRUE 1
 #define FALSE 0
 
@@ -10,8 +11,8 @@ int main(int argc, char **argv)
 {
 	int i;
 	FILE *f;
-	char[500] line;
-	extern void int processLine(char *line, char *searchString, char *fileName);
+	char line[500];
+	extern void processLine(char *line, char *searchString, char *fileName);
 
 	// Go thru each option
 	char c;
@@ -39,15 +40,15 @@ int main(int argc, char **argv)
 	} else {	
 		// If no files, standard input
 		if (argc == optind + 1){
-			while (fgets(line, 500, stdin)){
+			while (fgets(line, 500, stdin) != NULL){
 				processLine(line, argv[optind], "stdin");
 			}
 		} else {
 			// If there are no more arguments process standard input
 			for (i = optind + 2; i < argc && status != 2; i++){
 				// If standard input
-				if (argv[i] == "-"){
-					while (fgets(line, 500, stdin))
+				if (argv[i] == '-'){
+					while (fgets(line, 500, stdin) != NULL)
 						processLine(line, argv[optind], "stdin");
 				} else {
 					// Open file 
@@ -57,7 +58,7 @@ int main(int argc, char **argv)
 						status = 2;
 					}
 					// Process each line
-					while (fgets(line, 500, argv[i]) != NULL){
+					while (fgets(line, 500, f) != NULL){
 						processLine(line, argv[optind], argv[i]);
 					}
 					fclose(f);
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
 	return (status);
 }
 
-void int processLine(char *line, char *searchString, char *fileName)
+void processLine(char *line, char *searchString, char *fileName)
 {
 	//Determine status
 	if (strstr(line, searchString))
