@@ -80,7 +80,7 @@ void processLine(char *line, char *searchString, char *fileName)
 	// Output
 	if (!status){
 		if (hFlag)
-			printf("%s\n", line);
+			printf("%s", line);
 		else if (lFlag)
 			printf("%s", fileName);
 		else {
