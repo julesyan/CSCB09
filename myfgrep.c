@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 void processLine(char *line, char *searchString, char *fileName)
 {
 	//Determine status
-	if (strstr(line, searchString) && status){
+	if (strstr(line, searchString)){
 		found = TRUE;
 		if (hFlag)
 			printf("%s", line);
