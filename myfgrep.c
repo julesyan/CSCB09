@@ -46,6 +46,7 @@ int main(int argc, char **argv)
 				processLine(line, argv[optind], "stdin");
 			}
 		} else {
+			printf("%i", status);
 			// If there are no more arguments process standard input
 			for (i = optind + 2; i < argc && status != 2; i++){
 				// If standard input
