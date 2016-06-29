@@ -2,7 +2,7 @@
 
 int main (int argc, char** argv)
 {
-     char searchString[500];
+    char searchString[500];
     char path[2000];
     int i;
 
