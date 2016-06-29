@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 					f = fopen(argv[i], "r");
 					finishedFile = FALSE;
 					if (f == NULL){
-						perror("Error opening file");
+						perror(argv[i]);
 						status = 2;
 					}
 					// Process each line
