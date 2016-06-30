@@ -21,8 +21,8 @@ int printFound(char *cur)
         return(2);
     }
 
-    // Read directory
-    while ((p = readdir(dp))){
+    // Read directory if there have been no errors
+    while ((p = readdir(dp)) && (found == FALSE || found == TRUE)){
         // Get the path of the current file/directory
         strcpy(path, cur);
         strcat(path, "/");
