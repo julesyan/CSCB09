@@ -37,4 +37,7 @@ int main ()
         // ***WHAT IS >> 8***
         sum += (status >> 8);
     }
+    // print and end
+    printf("%d\n", sum);
+    return(0);
 }
