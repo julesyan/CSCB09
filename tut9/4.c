@@ -43,6 +43,35 @@ int main()
 
 void insert(int key, int data)
 {
+    struct item *curItem, *newItem, *prev;
+    if ((new = malloc(sizeof(struct item))) == NULL) {
+        fprintf(stderr, "no memory\n");  
+        exit(1);
+    }
+    newItem.key = key;
+    newItem.data = data;
+    // If the head has nothing
+    if (head == NULL){
+        head.data = data;
+        head.key = key;
+        head.next = NULL;
+        return;
+    }
+
+    // Head has an item, start looping thru the linked list
+    while (curItem->key < key && curItem->next){
+        prev = &curItem;
+        curItem = curItem->next;
+    }
+
+    // goes to head of list
+    if (prev == NULL){
+        new.next = &head;
+        head = new
+    } else {
+        prev.next = new;
+        new.next = curItem;
+    }
 }
 
 
