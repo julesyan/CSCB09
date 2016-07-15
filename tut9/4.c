@@ -48,8 +48,8 @@ void insert(int key, int data)
         fprintf(stderr, "no memory\n");  
         exit(1);
     }
-    newItem.key = key;
-    newItem.data = data;
+    newItem->key = key;
+    newItem->data = data;
     // If the head has nothing
     if (head == NULL){
         head->data = data;
@@ -67,7 +67,7 @@ void insert(int key, int data)
     // goes to head of list
     if (prev == NULL){
         newItem->next = &head;
-        head = new
+        head = newItem;
     } else {
         prev->next = new;
         new.next = curItem;
