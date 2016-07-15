@@ -52,9 +52,9 @@ void insert(int key, int data)
     newItem.data = data;
     // If the head has nothing
     if (head == NULL){
-        head.data = data;
-        head.key = key;
-        head.next = NULL;
+        head->data = data;
+        head->key = key;
+        head->next = NULL;
         return;
     }
 
@@ -66,10 +66,10 @@ void insert(int key, int data)
 
     // goes to head of list
     if (prev == NULL){
-        new.next = &head;
+        newItem->next = &head;
         head = new
     } else {
-        prev.next = new;
+        prev->next = new;
         new.next = curItem;
     }
 }
