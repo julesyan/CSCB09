@@ -61,7 +61,7 @@ void execute(struct parsed_line *p)
     }
 }
 
-struct pipeline * execute_pipe(struct pipeline *pl)
+struct pipeline * execute_pipe(struct pipeline *pl, int isdouble)
 {
     int pipefd[2];
 
@@ -78,19 +78,25 @@ struct pipeline * execute_pipe(struct pipeline *pl)
             laststatus = 127;
             break;
         case 0:
-            /* child */
-            /*  1. Close the input
+            /* child - left side*/
+            /*  1. Close the input (use stdin)
                 2. Have the pipe output as the new output
                 3. Clean up the pipe output */
             close(pipefd[0]);
             dup2(pipefd[1], 1);
             close(pipefd[1]);
+
+            /* If also redirecting error input */
+            if (isdouble){
+                close(2);
+                dup2(1, 2);
+            }
             return pl;
         default:
-            /* parent */
-            /*  1. Close the output
+            /* parent - right side*/
+            /*  1. Close the output (use stdout)
                 2. Have pipe output from new input
-                3. clean up the pip output */
+                3. clean up the pipe input */
             close (pipefd[1]);
             dup2(pipefd[0], 0);
             close (pipefd[0]);
@@ -137,9 +143,9 @@ void execute_one_subcommand(struct parsed_line *p)
     if ((pl = p->pl)){
         /* If there is a pipe, execute the pipe */
         if (pl->next){
-            pl = execute_pipe(pl);
+            pl = execute_pipe(pl, pl->next->isdouble);
         }
-        
+
         /* finding the location of the executing cmd */
         fileLoc = pl->argv[0];
         if (!(strchr(fileLoc, '/'))){
