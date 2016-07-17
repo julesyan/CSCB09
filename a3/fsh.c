@@ -89,14 +89,20 @@ void execute_one_subcommand(struct parsed_line *p)
     	    perror(p->outputfile);
     	    exit(1);
 	    }
+
+        /* If we are writing stderr and stdout to the same file */
+        if (p->output_is_double){
+            close(2);
+            dup2(1, 2);
+        }
     }
     if (p->pl)
-        /*******************************************
-        We are now executing the first command
-        REMOVE THIS
-        -------------------------------------------*/
+        /***********************************************************************
+        * We are now executing the first command
+        * REMOVE THIS
+        * ----------------------------------------------------------------------*/
         printf("execute %s\n", p->pl->argv[0]);
-        /*******************************************/
+        /**********************************************************************/
 
         /* finding the location of the executing cmd */
         fileLoc = p->pl->argv[0];
