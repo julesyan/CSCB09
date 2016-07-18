@@ -14,25 +14,63 @@
 #include "parse.h"
 #include "error.h"
 
-int showprompt = 1;
+int showprompt = 0;
 int laststatus = 0;  /* set by anything which runs a command */
 
 
-int main()
+int main(int argc, char **argv)
 {
     char buf[1000];
     struct parsed_line *p;
     extern void execute(struct parsed_line *p);
+    char c;
+    int vFlag = 0, cFlag = 0;
+    FILE *fp;
+
+    /* Go thru each option */
+    while ((c = getopt(argc, argv, "vic:")) != EOF){
+        switch(c){
+            case 'v':
+                vFlag = 1;
+                break;
+            case 'i':
+                showprompt = 1;
+                break;
+            case 'c':
+                cFlag = 1;
+                strcpy(buf, optarg);
+                break; 
+        }
+    }
+
+    /* If there is a file name, change stdin, unless option c is present, 
+     * then give usage error */
+    fp = stdin;
+    if (optind != argc){
+        if (cFlag){
+            fprintf(stderr, "usage: %s [-i] [-v] [{file | -c command}]\n",
+                argv[0]);
+            return(1);
+        }
+        if ((fp = fopen(argv[optind], "r")) == NULL){
+            perror(argv[optind]);
+            return(1);
+        }
+    }
 
     while (1) {
-    	if (showprompt)
+    	if ((showprompt | isatty(fileno(fp))) && !cFlag)
     	    printf("$ ");
-    	if (fgets(buf, sizeof buf, stdin) == NULL)
+        if (!cFlag && fgets(buf, sizeof buf, fp) == NULL)
     	    break;
     	if ((p = parse(buf))) {
+            if (vFlag && !cFlag)
+                printf("%s", buf);
     	    execute(p);
     	    freeparse(p);
         }
+        if (cFlag)
+            break;
     }
 
     return(laststatus);
