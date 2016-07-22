@@ -1,0 +1,10 @@
+$ nc -l 4321
+1 17 10
+C1
+loc 9
+go 10
+loc 10
+here 5
+get 5
+ok
+$ 
