@@ -1,0 +1,38 @@
+julia@Julia-Lenovo:$ nc localhost 1234
+1 17 10
+C2
+name -2 C2
+name -1 C1
+loc 1
+here 0
+here -1
+go 2
+loc 2
+here 9
+loc 1
+error invalid: loc 1
+go 1
+loc 1
+here 0
+here -1
+get 0
+ok
+inv
+ib
+i 0
+ie
+descr
+loc 1
+here -1
+poke 1
+ok
+drop 0
+ok
+go 2
+loc 2
+here 9
+go 1
+loc 1
+here 0
+here -1
+
