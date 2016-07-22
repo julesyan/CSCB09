@@ -1,4 +1,4 @@
-julia@Julia-Lenovo:$ nc localhost 1234
+$ nc localhost 1234
 1 17 10
 C2
 name -2 C2
