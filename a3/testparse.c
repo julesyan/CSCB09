@@ -52,17 +52,17 @@ void show(struct parsed_line *p)
     }
 
     if (p->outputfile) {
-	printf("  redirect %s to \"%s\"\n",
-		p->output_is_double ?  "stdout+stderr" : "output",
-		p->outputfile);
-	something = 1;
+	   printf("  redirect %s to \"%s\"\n",
+	       p->output_is_double ?  "stdout+stderr" : "output", 
+           p->outputfile);
+	   something = 1;
     }
     if (p->isbg) {
-	printf("  [backgrounded]\n");
-	something = 1;
+	   printf("  [backgrounded]\n");
+	   something = 1;
     }
 
     if (!something)
-	printf("\n");
+	   printf("\n");
 
 }
