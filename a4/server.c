@@ -31,6 +31,7 @@ struct client {
 } *clientlist = NULL;
 
 
+static void listen();
 static void parseargs(int argc, char **argv);
 static void newclient(int fd, struct sockaddr_in *r);
 static void removeclient(struct client *p);
@@ -51,17 +52,45 @@ int main(int argc, char **argv)
 {
     parseargs(argc, argv);
 
-    ...
+    /* Geting new connections and process them and existing ones */
+    listen();
 
     sprintf(buf, "%d %d %d\r\n", PROTOCOL_VERSION, NPLACES, n_thing_place);
 
     ...
 
     do_something(p, s);
-	-> where 'p' is a pointer to struct client,
-	   and s is the return value of memnewline()
+	/* -> where 'p' is a pointer to struct client,
+	   and s is the return value of memnewline() */
     ...
 
+}
+
+static void listen(){
+    struct client *c;
+    int maxfd = 0;
+    /* Gets the list of file descripters */
+    fd_set fdlist;
+    FD_ZERO(&fdlist); /* Clearing the list of anything */
+    FD_SET(0, &fdlist); /* Listening to stdin */
+
+    /*  Go thru each client that we have and listen to them */
+    for (c = clientlist; c != NULL; c = c->next) {
+        FD_SET(c->fd, &fdlist); /* Listening to that client */
+
+        /* Getting max fd */
+        if (c->fd > maxfd)
+            maxfd = c->fd;
+    }
+
+    /*  Wait for someone to read from (using select), there is no timer or 
+        things to write to */
+    if (select(maxfd + 1, &fdlist, NULL, NULL, NULL) < 0){
+        perror("select");
+    } else {
+        /* Someone is conencted now and we should process what they say */
+        
+    }
 }
 
 
@@ -69,17 +98,17 @@ static void parseargs(int argc, char **argv)
 {
     int c, status = 0;
     while ((c = getopt(argc, argv, "p:")) != EOF) {
-	switch (c) {
-	case 'p':
-	    port = atoi(optarg);
-	    break;
-	default:
-	    status++;
-	}
+    	switch (c) {
+        	case 'p':
+        	    port = atoi(optarg);
+        	    break;
+        	default:
+        	    status++;
+    	}
     }
     if (status || optind != argc) {
-	fprintf(stderr, "usage: %s [-p port]\n", argv[0]);
-	exit(1);
+	   fprintf(stderr, "usage: %s [-p port]\n", argv[0]);
+	   exit(1);
     }
 }
 
@@ -92,17 +121,17 @@ static void newclient(int fd, struct sockaddr_in *r)
     printf("connection from %s\n", inet_ntoa(r->sin_addr));
 
     if (write(fd, hello, hellolen) != hellolen) {
-	close(fd);
-	printf("%s didn't even listen to the banner!\n",
-		inet_ntoa(r->sin_addr));
-	return;
+    	close(fd);
+    	printf("%s didn't even listen to the banner!\n",
+    		inet_ntoa(r->sin_addr));
+    	return;
     }
 
     if ((p = malloc(sizeof(struct client))) == NULL) {
-	/* very unlikely */
-	fprintf(stderr, "out of memory in adding new client!\n");
-	close(fd);
-	return;
+    	/* very unlikely */
+    	fprintf(stderr, "out of memory in adding new client!\n");
+    	close(fd);
+    	return;
     }
 
     p->fd = fd;
@@ -129,27 +158,27 @@ static void removeclient(struct client *p)
 
     /* remove */
     for (pp = &clientlist; *pp && *pp != p; pp = &((*pp)->next))
-	;
+	   ;
     if (*pp == NULL) {
-	fprintf(stderr, "very odd -- I can't find that client\n");
+	   fprintf(stderr, "very odd -- I can't find that client\n");
     } else {
-	*pp = (*pp)->next;
-	free(p);
+	   *pp = (*pp)->next;
+	   free(p);
     }
 
     /* drop all possessions */
     for (i = 0; i < nthings; i++) {
-	if (thing_place[i] == oldid) {
-	    thing_place[i] = oldloc;
-	    send_arrived(oldloc, i, NULL);
-	}
+    	if (thing_place[i] == oldid) {
+    	    thing_place[i] = oldloc;
+    	    send_arrived(oldloc, i, NULL);
+    	}
     }
 
     /* tell everyone this person has quit */
     send_departed(oldloc, oldid, NULL);
     sprintf(buf, "quit %d\r\n", oldid);
     for (p = clientlist; p; p = p->next)
-	send_string(p->fd, buf);
+	   send_string(p->fd, buf);
 }
 
 
@@ -162,16 +191,16 @@ static void describe(struct client *p)
     sprintf(buf, "loc %d\r\n", p->loc);
     send_string(p->fd, buf);
     for (i = 0; i < nthings; i++) {
-	if (thing_place[i] == p->loc) {
-	    sprintf(buf, "here %d\r\n", i);
-	    send_string(p->fd, buf);
-	}
+    	if (thing_place[i] == p->loc) {
+    	    sprintf(buf, "here %d\r\n", i);
+    	    send_string(p->fd, buf);
+    	}
     }
     for (q = clientlist; q; q = q->next) {
-	if (q != p && q->loc == p->loc) {
-	    sprintf(buf, "here %d\r\n", q->id);
-	    send_string(p->fd, buf);
-	}
+    	if (q != p && q->loc == p->loc) {
+    	    sprintf(buf, "here %d\r\n", q->id);
+    	    send_string(p->fd, buf);
+    	}
     }
 }
 
@@ -183,20 +212,20 @@ static void do_set_handle(struct client *p, int len)
     int i, c;
 
     if (len > MAXHANDLE) {
-	fprintf(stderr, "handle is %d chars long, max %d\n", len, MAXHANDLE);
-	removeclient(p);
-	return;
+    	fprintf(stderr, "handle is %d chars long, max %d\n", len, MAXHANDLE);
+    	removeclient(p);
+    	return;
     }
 
     /* copy characters, check for bad ones */
     for (i = 0; i < len; i++) {
-	c = (p->buf[i] & 255);
-	if (c < ' ' || (c >= 127 && c < 160)) {
-	    fprintf(stderr, "handle contains illegal character %d\n", c);
-	    removeclient(p);
-	    return;
-	}
-	p->handle[i] = c;
+    	c = (p->buf[i] & 255);
+    	if (c < ' ' || (c >= 127 && c < 160)) {
+    	    fprintf(stderr, "handle contains illegal character %d\n", c);
+    	    removeclient(p);
+    	    return;
+    	}
+    	p->handle[i] = c;
     }
     p->handle[len] = '\0';
 
@@ -205,14 +234,14 @@ static void do_set_handle(struct client *p, int len)
     /* tell everyone else about the newcomer */
     sprintf(buf, "name %d %s\r\n", p->id, p->handle);
     for (q = clientlist; q; q = q->next)
-	send_string(q->fd, buf);
+	   send_string(q->fd, buf);
 
     /* tell the newcomer about everyone else */
     for (q = clientlist; q; q = q->next) {
-	if (q != p) {
-	    sprintf(buf, "name %d %s\r\n", q->id, q->handle);
-	    send_string(p->fd, buf);
-	}
+    	if (q != p) {
+    	    sprintf(buf, "name %d %s\r\n", q->id, q->handle);
+    	    send_string(p->fd, buf);
+    	}
     }
 
     /* move the newcomer to the initial location */
@@ -228,10 +257,10 @@ static void do_inv(struct client *p)
 
     send_string(p->fd, "ib\r\n");
     for (i = 0; i < nthings; i++) {
-	if (thing_place[i] == p->id) {
-	    sprintf(buf, "i %d\r\n", i);
-	    send_string(p->fd, buf);
-	}
+    	if (thing_place[i] == p->id) {
+    	    sprintf(buf, "i %d\r\n", i);
+    	    send_string(p->fd, buf);
+    	}
     }
     send_string(p->fd, "ie\r\n");
 }
@@ -240,10 +269,10 @@ static void do_inv(struct client *p)
 static void do_go(struct client *p, int place)
 {
     if (place < 0 || place >= NPLACES) {
-	fprintf(stderr, "invalid place %d from client fd %d\n", 
-		place, p->fd);
-	send_string(p->fd, "invalid place number\r\n");
-	return;
+    	fprintf(stderr, "invalid place %d from client fd %d\n", 
+    		place, p->fd);
+    	send_string(p->fd, "invalid place number\r\n");
+    	return;
     }
 
     send_departed(p->loc, p->id, p);
@@ -256,15 +285,15 @@ static void do_go(struct client *p, int place)
 static void do_get(struct client *p, int id)
 {
     if (id < 0 || id >= nthings) {
-	fprintf(stderr, "invalid thing %d from client fd %d\n", 
-		id, p->fd);
-	send_string(p->fd, "invalid thing number\r\n");
-	return;
+    	fprintf(stderr, "invalid thing %d from client fd %d\n", 
+    		id, p->fd);
+    	send_string(p->fd, "invalid thing number\r\n");
+    	return;
     }
 
     if (thing_place[id] != p->loc) {
-	send_string(p->fd, "ng\r\n");
-	return;
+    	send_string(p->fd, "ng\r\n");
+    	return;
     }
 
     thing_place[id] = p->id;
@@ -276,15 +305,15 @@ static void do_get(struct client *p, int id)
 static void do_drop(struct client *p, int id)
 {
     if (id < 0 || id >= nthings) {
-	fprintf(stderr, "invalid thing %d from client fd %d\n", 
-		id, p->fd);
-	send_string(p->fd, "invalid thing number\r\n");
-	return;
+    	fprintf(stderr, "invalid thing %d from client fd %d\n", 
+    		id, p->fd);
+    	send_string(p->fd, "invalid thing number\r\n");
+    	return;
     }
 
     if (thing_place[id] != p->id) {
-	send_string(p->fd, "nd\r\n");
-	return;
+	   send_string(p->fd, "nd\r\n");
+	   return;
     }
 
     thing_place[id] = p->loc;
@@ -299,17 +328,17 @@ static void do_poke(struct client *p, int id)
     struct client *q;
 
     if (id > 0)
-	id = -id;
+	   id = -id;
 
     for (q = clientlist; q && q->id != id; q = q->next)
-	;
+	   ;
     if (!q || p->loc != q->loc) {
-	send_string(p->fd, "np\r\n");
-	return;
+	   send_string(p->fd, "np\r\n");
+	   return;
     } else {
-	sprintf(buf, "poked %d\r\n", p->id);
-	send_string(q->fd, buf);
-	send_string(p->fd, "ok\r\n");
+	   sprintf(buf, "poked %d\r\n", p->id);
+	   send_string(q->fd, buf);
+	   send_string(p->fd, "ok\r\n");
     }
 }
 
@@ -322,33 +351,33 @@ static void do_something(struct client *p, char *wherenewline)
     *wherenewline = '\0';
 
     if (len == 0) {
-	/* ignore blank lines */
+	   /* ignore blank lines */
     } else if (p->handle[0] == '\0') {
-	do_set_handle(p, len);
+	   do_set_handle(p, len);
     } else if (strcmp(p->buf, "inv") == 0) {
-	do_inv(p);
+	   do_inv(p);
     } else if (strcmp(p->buf, "descr") == 0) {
-	describe(p);
+	   describe(p);
     } else if (match_arg(p->buf, "go", &n)) {
-	do_go(p, n);
+	   do_go(p, n);
     } else if (match_arg(p->buf, "get", &n)) {
-	do_get(p, n);
+	   do_get(p, n);
     } else if (match_arg(p->buf, "drop", &n)) {
-	do_drop(p, n);
+	   do_drop(p, n);
     } else if (match_arg(p->buf, "poke", &n)) {
-	do_poke(p, n);
+	   do_poke(p, n);
     } else {
-	char buf[100];
-	fprintf(stderr, "invalid command from fd %d: %.*s\n", 
-		p->fd, len, p->buf);
-	sprintf(buf, "error invalid: %.*s\r\n", len, p->buf);
-	send_string(p->fd, buf);
+	   char buf[100];
+	   fprintf(stderr, "invalid command from fd %d: %.*s\n", 
+		  p->fd, len, p->buf);
+	   sprintf(buf, "error invalid: %.*s\r\n", len, p->buf);
+	   send_string(p->fd, buf);
     }
 
     /* p->buf[len] was either \r or \n.  How about p->buf[len+1]? */
     len++;
     if (len < p->bytes_in_buf && (p->buf[len] == '\r' || p->buf[len] == '\n'))
-	len++;
+	   len++;
     p->bytes_in_buf -= len;
     memmove(p->buf, p->buf + len, p->bytes_in_buf);
 }
@@ -358,12 +387,12 @@ static void send_arrived(int loc, int thing, struct client *donttell)
 {
     struct client *q, *n;
     for (q = clientlist; q; q = n) {
-	n = q->next;
-	if (q != donttell && q->loc == loc) {
-	    char buf[100];
-	    sprintf(buf, "arr %d\r\n", thing);
-	    send_string(q->fd, buf);
-	}
+    	n = q->next;
+    	if (q != donttell && q->loc == loc) {
+    	    char buf[100];
+    	    sprintf(buf, "arr %d\r\n", thing);
+    	    send_string(q->fd, buf);
+    	}
     }
 }
 
@@ -372,12 +401,12 @@ static void send_departed(int loc, int thing, struct client *donttell)
 {
     struct client *q, *n;
     for (q = clientlist; q; q = n) {
-	n = q->next;
-	if (q != donttell && q->loc == loc) {
-	    char buf[100];
-	    sprintf(buf, "dep %d\r\n", thing);
-	    send_string(q->fd, buf);
-	}
+    	n = q->next;
+    	if (q != donttell && q->loc == loc) {
+    	    char buf[100];
+    	    sprintf(buf, "dep %d\r\n", thing);
+    	    send_string(q->fd, buf);
+    	}
     }
 }
 
@@ -386,5 +415,5 @@ static void send_string(int fd, char *s)
 {
     int len = strlen(s);
     if (write(fd, s, len) != len)
-	perror("write");
+	   perror("write");
 }
