@@ -4,7 +4,7 @@
 int main()
 {
     extern int authenticate();
-    if (authenticate() == 2) {
+    if (authenticate() != 1) {
         printf("Login incorrect.\n");
         return(1);
     }
@@ -19,7 +19,7 @@ int authenticate()
     printf("Password: ");
     if (fgets(buf, sizeof buf, stdin) == NULL)
         return(0);
-    else if (strcmp(buf, "sesame\n") == 0)
+    if (strcmp(buf, "sesame\n") == 0)
         return(1);
     else
         return(2);
