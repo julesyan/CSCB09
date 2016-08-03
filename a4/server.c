@@ -59,14 +59,6 @@ int main(int argc, char **argv)
     /* processing clients */
     while (1){
         get_connection();
-
-
-        //...
-
-        //do_something(p, s);
-    	/* -> where 'p' is a pointer to struct client,
-    	   and s is the return value of memnewline() */
-        //...
     }
 }
 
@@ -99,8 +91,6 @@ static void make_connect()
     }
 }
 
-/* NEED TO FINISH 
-this goes in the loop*/
 static void get_connection()
 {
     int maxfd = listenfd;
