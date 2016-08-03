@@ -39,6 +39,7 @@ static void do_something();
 static void do_something_server(char *wherenewline);
 static void docmd(char **cmd);
 static void call_with_arg(void (*f)(int), char *arg, char *expln, char *cmdname);
+static void say(char *text);
 static void get(int obj);
 static void drop(int obj);
 static void poke(int obj);
@@ -55,6 +56,7 @@ static void removename(int id);
 static char *find_name(int id);
 static char **explode(char *s);
 static int parsenumber(char *s);
+static void saidby(int id, char *text);
 
 
 int main(int argc, char **argv)
@@ -156,7 +158,7 @@ static void send_string(char *s)
 {
     int len = strlen(s);
     if (write(serverfd, s, len) != len)
-    perror("write");
+        perror("write");
 }
 
 
@@ -214,7 +216,11 @@ static void do_something()
                 if (fgets(buf, sizeof buf, stdin) == NULL)
                     exit(0);
                 // Explode returns the string in a sequence of tokens
-                docmd(explode(buf));
+                if (strncmp(buf, lang_say, strlen(lang_say)) == 0){
+                    say(buf); 
+                } else {
+                    docmd(explode(buf));
+                }
             }
         }
     }
@@ -263,6 +269,8 @@ static void do_something_server(char *wherenewline)
         removename(n);
     } else if (strncmp(buf, "error ", 6) == 0) {
         printf("error from server: %s\n", buf + 6);
+    } else if (match_arg(buf, "said", &n)){
+        saidby(n, buf);
     } else {
         fprintf(stderr, "unexpected data from server: %s\n", buf);
     }
@@ -286,7 +294,7 @@ static void docmd(char **cmd)
         return;
     }
 
-    // If the response had more args then eneded (max two words, min one)
+    // If the response had more args then needed (max two words, min one)
     if (cmd[1] && cmd[2]) {
         printf("%s\n", lang_toolong);
         help();
@@ -357,6 +365,25 @@ static void call_with_arg(void (*f)(int), char *arg, char *expln, char *cmdname)
         (*f)(argnum);
 }
 
+static void say(char *text){
+    char buff[200];
+    sprintf(buff, "say %s\r\n", text + 4);
+    if ((text + 4) == NULL)
+        printf(lang_say_explain, lang_say);
+    else
+        send_string(buff);
+}
+
+static void saidby(int id, char *text){
+    char *p = find_name(id);
+    char buf[20];
+    sprintf(buf, "%d", id);
+    printf("DEBUG%s\n", text);
+    if (p)
+        printf(lang_says_format, p, text + 4 + strlen(buf));
+    else
+        printf("error: unidentified id");
+}
 
 static void get(int obj)
 {
@@ -406,7 +433,7 @@ static void go(int dir)
 static void help()
 {
     int i;
-    printf("%s %s %s %s %s", lang_commandlist, lang_get, lang_drop, lang_poke, lang_inv[0]);
+    printf("%s %s %s %s %s %s", lang_commandlist, lang_get, lang_drop, lang_poke, lang_inv[0], lang_say);
     for (i = 0; i < 6; i++)
         printf(" %s", lang_directions[i][0]);
     printf("\n");

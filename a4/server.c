@@ -43,6 +43,7 @@ static void do_go(struct client *p, int place);
 static void do_get(struct client *p, int id);
 static void do_drop(struct client *p, int id);
 static void do_poke(struct client *p, int id);
+static void do_say(struct client *p);
 static void do_something(struct client *p, char *wherenewline);
 static void send_arrived(int loc, int thing, struct client *donttell);
 static void send_departed(int loc, int thing, struct client *donttell);
@@ -143,6 +144,7 @@ static void get_connection()
                     removeclient(c);
                     return;
                 }
+                /* If they have finished typing  */
                 if ((s = memnewline(clientlist->buf, clientlist->bytes_in_buf)) != NULL){
                     do_something(c, s);
                 }
@@ -307,7 +309,6 @@ static void do_set_handle(struct client *p, int len)
     describe(p);
 }
 
-
 static void do_inv(struct client *p)
 {
     int i;
@@ -401,6 +402,15 @@ static void do_poke(struct client *p, int id)
 }
 
 
+static void do_say(struct client *p){
+    struct client *c;
+    char buf[200];
+    sprintf(buf, "said %d %s\r\n", p->id, p->buf + 4);
+    for (c = clientlist; c != NULL; c = c->next){
+        send_string(c->fd, buf);
+    }
+}
+
 /* there is a command in the buffer; do it */
 static void do_something(struct client *p, char *wherenewline)
 {
@@ -424,6 +434,8 @@ static void do_something(struct client *p, char *wherenewline)
 	   do_drop(p, n);
     } else if (match_arg(p->buf, "poke", &n)) {
 	   do_poke(p, n);
+    } else if (strncmp(p->buf, "say ", 4) == 0){
+        do_say(p);
     } else {
 	   char buf[100];
 	   fprintf(stderr, "invalid command from fd %d: %.*s\n", 
