@@ -31,7 +31,8 @@ struct client {
 } *clientlist = NULL;
 
 
-static void listen();
+static void make_connect();
+static void get_connection();
 static void parseargs(int argc, char **argv);
 static void newclient(int fd, struct sockaddr_in *r);
 static void removeclient(struct client *p);
@@ -51,33 +52,72 @@ static void send_string(int fd, char *s);
 int main(int argc, char **argv)
 {
     parseargs(argc, argv);
-
+    sprintf(hello, "%d %d %d\r\n", PROTOCOL_VERSION, NPLACES, n_thing_place);
+    hellolen = sizeof hello;
     /* Geting new connections and process them and existing ones */
-    listen();
+    make_connect();
+    /* processing clients */
+    while (1){
+        get_connection();
 
-    sprintf(buf, "%d %d %d\r\n", PROTOCOL_VERSION, NPLACES, n_thing_place);
 
-    ...
+        //...
 
-    do_something(p, s);
-	/* -> where 'p' is a pointer to struct client,
-	   and s is the return value of memnewline() */
-    ...
-
+        //do_something(p, s);
+    	/* -> where 'p' is a pointer to struct client,
+    	   and s is the return value of memnewline() */
+        //...
+    }
 }
 
-static void listen(){
+/* Socket stuff */
+static void make_connect()
+{
+    struct sockaddr_in r;
+
+    /* creating the socket */
+    if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+        perror("socket");
+        exit(1);
+    }
+
+    memset(&r, '\0', sizeof r);
+    r.sin_family = AF_INET;
+    r.sin_addr.s_addr = INADDR_ANY;
+    r.sin_port = htons(port);
+
+    /* a palce to connect to the client */
+   if (bind(listenfd, (struct sockaddr *)&r, sizeof r) < 0) {
+        perror("bind");
+        exit(1);
+    }
+
+    /* listening until something */
+    if (listen(listenfd, 5)){
+        perror("listen");
+        exit(1);
+    }
+}
+
+/* NEED TO FINISH 
+this goes in the loop*/
+static void get_connection()
+{
+    int maxfd = listenfd;
+    int clientfd;
     struct client *c;
-    int maxfd = 0;
+    socklen_t len;
+    struct sockaddr_in r;
+    char *s;
+
     /* Gets the list of file descripters */
     fd_set fdlist;
     FD_ZERO(&fdlist); /* Clearing the list of anything */
-    FD_SET(0, &fdlist); /* Listening to stdin */
+    FD_SET(listenfd, &fdlist); /* Listening to stdin */
 
     /*  Go thru each client that we have and listen to them */
     for (c = clientlist; c != NULL; c = c->next) {
         FD_SET(c->fd, &fdlist); /* Listening to that client */
-
         /* Getting max fd */
         if (c->fd > maxfd)
             maxfd = c->fd;
@@ -85,13 +125,41 @@ static void listen(){
 
     /*  Wait for someone to read from (using select), there is no timer or 
         things to write to */
-    if (select(maxfd + 1, &fdlist, NULL, NULL, NULL) < 0){
+    if ((select(maxfd + 1, &fdlist, NULL, NULL, NULL)) < 0){
         perror("select");
+        exit(1);
     } else {
         /* Someone is conencted now and we should process what they say */
-        
+        /* If the connection is from listenfd then new client */
+        if (FD_ISSET(listenfd, &fdlist)){
+            // Add new client
+            len = sizeof r;
+            if ((clientfd = accept(listenfd, (struct sockaddr *)&r, &len)) < 0){
+                perror("accept");
+                exit(1);
+            }
+            newclient(clientfd, &r);
+            return;
+        } 
+
+        /* Go thru each client and check if we are listening to them */
+        for (c = clientlist; c != NULL; c = c->next){
+            if (FD_ISSET(c->fd, &fdlist)){
+                // React to client
+                if ((c->bytes_in_buf = read(c->fd, c->buf, sizeof c->buf - 1)) < 0){
+                    perror("read");
+                    exit(1);
+                } else if (c->bytes_in_buf == 0){
+                    removeclient(c);
+                    return;
+                }
+                if ((s = memnewline(clientlist->buf, clientlist->bytes_in_buf)) != NULL){
+                    do_something(c, s);
+                }
+            }
+        }
     }
-}
+} 
 
 
 static void parseargs(int argc, char **argv)
