@@ -376,11 +376,12 @@ static void say(char *text){
 
 static void saidby(int id, char *text){
     char *p = find_name(id);
-    char buf[20];
-    sprintf(buf, "%d", id);
-    printf("DEBUG%s\n", text);
-    if (p)
-        printf(lang_says_format, p, text + 4 + strlen(buf));
+    char buff[20];
+    sprintf(buff, "%d", id);
+    if (p) {
+        printf(lang_says_format, p);
+        printf("%s\n", text + 5 + strlen(buff));
+    }
     else
         printf("error: unidentified id");
 }
