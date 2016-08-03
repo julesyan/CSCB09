@@ -407,7 +407,8 @@ static void do_say(struct client *p){
     char buf[200];
     sprintf(buf, "said %d %s\r\n", p->id, p->buf + 4);
     for (c = clientlist; c != NULL; c = c->next){
-        send_string(c->fd, buf);
+        if (c != p)
+            send_string(c->fd, buf);
     }
 }
 
